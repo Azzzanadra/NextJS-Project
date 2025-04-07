@@ -6,43 +6,49 @@ import '../app/globals.css';
 import { useRouter } from 'next/navigation';
 
 function MainPageAdmin() {
-    const router = useRouter()
-    const [items, setItems] = useState([])
+    const router = useRouter() //handles routing
+    const [items, setItems] = useState([]) //variable to store the products
     const [add,setAdd] = useState({
         title: '',
         price: 0.0,
         description: '',
         category: '',
         image: '#'
-    })
-    const [Query, setQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    }) //variable for adding a new product
+    const [Query, setQuery] = useState(""); //variable for handling search filter
+    const [selectedCategory, setSelectedCategory] = useState(""); //variale for categories
+    const [isAuthenticated, setIsAuthenticated] = useState(false); //for authentification
 
+    //function that handles logging out
     const handleLogout = () => {
-        localStorage.removeItem("authToken");
+        localStorage.removeItem("authToken"); //remove the login token from local storage
         console.log("Logged out successfully");
-        router.push('/')
-      };
+        router.push('/'); //route to the main page
+    };
+    
+    //function that calls all product from the API    
     const apiCall= async ()=>{
         try{
             const response = await axios.get("https://fakestoreapi.com/products");
-            setItems(response.data);            
+            setItems(response.data); //puts the products in the items variable.       
         }
         catch(error){
             console.error("Error fetching products:", error);
         }
     }
 
+    //code that runs when the page loads
     useEffect(() =>{
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('authToken'); //finds the login token in local storage
         if (!token){
-            router.push('/login')
+            router.push('/login') //route to login page if login token doesn't exist
         }else{
             setIsAuthenticated(true);
-            apiCall();            
+            apiCall();
         }
     },[])
+
+    //handles changes in input values
     const handleChange = (e) => {
         setAdd(prev => ({
             ...prev,
@@ -50,51 +56,49 @@ function MainPageAdmin() {
         }));
     };
 
+    //function that handles adding new products
     const handleAdd = async () => {
         try {
             const response = await axios.post('https://fakestoreapi.com/products', add);
-            
-            setItems(prev => [...prev, response.data]); 
-            
-            setAdd({ title: '', price: 0.0, description: '', category: '', image: '' });
+            setItems(prev => [...prev, response.data]); //add the new product
+            setAdd({ title: '', price: 0.0, description: '', category: '', image: '' }); //reset the add variable
         } catch (error) {
             console.error("Error adding product:", error);
         }
     };
 
+    //function that handles deleting the product
     const handleDelete = async (id) => {
         try {
             await axios.delete(`https://fakestoreapi.com/products/${id}`)
-            setItems(prevItems => prevItems.filter(item => item.id !== id));
+            setItems(prevItems => prevItems.filter(item => item.id !== id)); //filter the product from the products list
         } catch (error) {
             console.error("Error adding product:", error);
         }
     }
 
+    //handles items filtering for search bar and categories
     const filterItems = useMemo(() => { return items.filter((item =>{
-        const matchesQuery = item.title.toLowerCase().includes(Query.toLowerCase());
+        const matchesQuery = item.title.toLowerCase().includes(Query.toLowerCase()); //for the search bar
         const matchesCategory = selectedCategory ? item.category.toLowerCase() === selectedCategory.toLowerCase() : true;
-        return matchesQuery && matchesCategory;
+        return matchesQuery && matchesCategory; //for the categories
     }))},[items,Query, selectedCategory])
 
+    //function that routes to the specific product's page    
     function desc(productId){
-
         router.push(`/productsAdmin/${productId}`);
     }
 
-    //     const axios = require('axios');
-    //   const product = {id:21, title: 'New Product', price: 29.99 };
-    //   axios.post('https://fakestoreapi.com/products', product)
-    //     .then(response => console.log(response.data));
   return (
     <div className='flex flex-col items-center min-h-screen bg-gray-200  text-black'>
+        {/* nav bar */}
         <nav className="flex items-center w-full bg-blue-300 justify-between">
             <img src="/Weasydoo.png" alt="#" onClick={() => router.push('/MainPageAdmin')} className='w-32 m-5 cursor-pointer'/>
             <span onClick={handleLogout} className='text-white font-bold text-2xl rounded-full p-3 mr-10 cursor-pointer border-2 border-white  hover:bg-white hover:text-blue-400'>Logout</span>
         </nav>
         <div className="flex flex-col items-center justify-around">
             {/* welcome section */}
-            <div className="flex items-center justify-center bg-[url(/display-shopping-carts-with-black-mouse-laptop-with-discount-tags-beige-background_1174726-9277.png)] w-full h-80">
+            <div className="flex items-center justify-center bg-blue-200 w-full h-80">
                 <div className="flex flex-col items-center">
                     <h1 className='text-4xl text-cyan-700 font-bold font-serif'>Welcome</h1>
                     <p className='font-bold text-center text-cyan-700 font-serif'>This is the Admin page, you can control products here.</p>                    
@@ -136,7 +140,7 @@ function MainPageAdmin() {
                 {items.length >0?(
                     filterItems.map((item)=>(
                         <div key={item.id} className="bg-yellow-100 p-4 shadow-md">
-                             <button className='bg-red-500 border-white p-2 text-white rounded-sm cursor-pointer' onClick={() =>handleDelete(item.id)}>X</button>
+                            <button className='bg-red-500 border-white p-2 text-white rounded-sm cursor-pointer' onClick={() =>handleDelete(item.id)}>X</button>
                             <img src={item.image} alt={item.title} loading="lazy" className="w-48 h-48 object-cover mx-auto" />
                             <h2 onClick={() => desc(item.id)} className="text-lg font-bold mt-2 cursor-pointer">{item.title}</h2>
                             <p className="text-green-700">${item.price}</p>

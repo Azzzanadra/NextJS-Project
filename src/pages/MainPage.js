@@ -6,48 +6,49 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 
-
-
 function MainPage() {
-    const router = useRouter()
-    const [items, setItems] = useState([]); 
-    const [Query, setQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("");
+    const router = useRouter(); //handles routing
+    const [items, setItems] = useState([]); //variable to store the products
+    const [Query, setQuery] = useState(""); //variable for handling search filter
+    const [selectedCategory, setSelectedCategory] = useState(""); //variale for categories
 
+    //code that runs when the page loads
     useEffect(() =>{
         apiCall();
     },[])
 
+    //handles items filtering for search bar and categories
     const filterItems = useMemo(() => { return items.filter((item =>{
-        const matchesQuery = item.title.toLowerCase().includes(Query.toLowerCase());
+        const matchesQuery = item.title.toLowerCase().includes(Query.toLowerCase()); //for the search bar
         const matchesCategory = selectedCategory ? item.category.toLowerCase() === selectedCategory.toLowerCase() : true;
-        return matchesQuery && matchesCategory;
+        return matchesQuery && matchesCategory; //for the categories
     }))},[items,Query, selectedCategory])
 
-
+    //function that calls all product from the API
     const apiCall= async ()=>{
         try{
             const response = await axios.get("https://fakestoreapi.com/products");
-            setItems(response.data);
+            setItems(response.data); //puts the products in the items variable.
         }
         catch(error){
             console.error("Error fetching products:", error);
         }
     }
 
-    function desc(productId){
-        
+    //function that routes to the specific product's page
+    function desc(productId){    
         router.push(`/products/${productId}`);
     }
   return (
     <div className='flex flex-col items-center min-h-screen bg-gray-200  text-black'>
+        {/* nav bar */}
         <nav className="flex items-center w-full bg-blue-300 justify-between">
             <img src="/Weasydoo.png" alt="#" onClick={() => router.push('/')} className='w-32 m-5 cursor-pointer'/>
             <span onClick={() => {router.push('/login')}} className='text-white font-bold text-2xl rounded-full p-3 mr-10 cursor-pointer border-2 border-white  hover:bg-white hover:text-blue-400'>Login</span>
         </nav>
         <div className="flex flex-col items-center justify-around">
             {/* welcome section */}
-            <div className="flex items-center justify-center bg-[url(/display-shopping-carts-with-black-mouse-laptop-with-discount-tags-beige-background_1174726-9277.png)] w-full h-80">
+            <div className="flex items-center justify-center bg-blue-200 w-full h-80">
                 <div className="flex flex-col items-center">
                     <h1 className='text-4xl text-cyan-700 font-bold font-serif'>Welcome</h1>
                     <p className='font-bold text-cyan-700 text-center font-serif'>This is the front page, you can search for items here.</p>                    

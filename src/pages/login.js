@@ -8,29 +8,34 @@ import { useRouter } from 'next/navigation';
 import '../app/globals.css';
 
 function Login() {
-  const router = useRouter();
+  const router = useRouter(); //handles routing
   const [credentials, setCredentials] = useState({
     username: '',
     password: ''
-  });
-  const [error, setError] = useState("");
+  }); //stores username and password as object
+  const [error, setError] = useState(""); //error variable
 
+  //handles changes in input value
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
-  // const credentials = { username: 'johnd', password: 'm38rmF$' };
+  //function that handles logging in
   const handleLogin = async() =>{
+    //if you want the full list of users, use this code:
+    // axios.get('https://fakestoreapi.com/users')
+    // .then(response => console.log(response.data))
+    // example: { username: 'johnd', password: 'm38rmF$' };
     try{
       setError('');
       const response = await axios.post('https://fakestoreapi.com/auth/login', credentials, {
         headers: { 'Content-Type': 'application/json' }
       });  
-      const token = response.data.token
+      const token = response.data.token //stores the login token in a variable.
 
       if (token){
-        localStorage.setItem("authToken", token);
-        router.push("/MainPageAdmin");    
+        localStorage.setItem("authToken", token); //stores the login token in local storage.
+        router.push("/MainPageAdmin"); //go to the admin page
       }
     }
     catch(error) {
@@ -38,9 +43,10 @@ function Login() {
     }
   }
 
+  //code that runs when the page loads
   useEffect(() => {
     if (localStorage.getItem("authToken")) {
-      router.push("/MainPageAdmin");
+      router.push("/MainPageAdmin"); //prevents user from getting into this page if they're already logged in.
     }
   }, []);
 
@@ -56,7 +62,7 @@ function Login() {
       <div className="bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row justify-around gap-4 w-full max-w-4xl p-6 max-sm:w-full">
         <div className="w-full md:w-3/5 p-3">
         <div onClick={() => router.push('/')} className="text-left cursor-pointer font-bold">
-          Weasydoo
+          <img src="/Weasydoo.png" alt="weasydoo" />
         </div>
         <div className="py-6 sm:py-10">
           <h2 className="text-3xl font-bold text-blue-400 mb-2 max-sm:text-2xl">Sign-in Account</h2>
